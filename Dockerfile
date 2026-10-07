@@ -1,12 +1,26 @@
-FROM nikolaik/python-nodejs:python3.10-nodejs19-bullseye
+FROM python:3.10-slim
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
-    && apt-get clean \
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    aria2 \
+    git \
+    nodejs \
+    npm \
+    build-essential \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . /app/
-WORKDIR /app/
-RUN pip3 install --no-cache-dir -U -r requirements.txt
+COPY requirements.txt .
 
-CMD bash start
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN chmod +x start
+
+CMD ["bash", "start"]
